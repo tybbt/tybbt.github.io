@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="UICollectionView作为两大集合视图之一，在应用程序中至关重要，再学会简单的使用后还需要学会定制属于我们的cell，展示出更多样的集合。 一、使用UICollectionView使用CollectionView可以从两种方式引入，首先最为简单的，便是直接创建UICollectionViewController，直接创建的方式获得的是一个继承字UICollectionViewContro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UIColectionView 知识点，从使用到丰富">
+<meta property="og:url" content="http://yoursite.com/2018/09/10/UIColectionView-point/index.html">
+<meta property="og:site_name" content="TYBBT的博客">
+<meta property="og:description" content="UICollectionView作为两大集合视图之一，在应用程序中至关重要，再学会简单的使用后还需要学会定制属于我们的cell，展示出更多样的集合。 一、使用UICollectionView使用CollectionView可以从两种方式引入，首先最为简单的，便是直接创建UICollectionViewController，直接创建的方式获得的是一个继承字UICollectionViewContro">
+<meta property="og:updated_time" content="2018-09-11T04:32:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UIColectionView 知识点，从使用到丰富">
+<meta name="twitter:description" content="UICollectionView作为两大集合视图之一，在应用程序中至关重要，再学会简单的使用后还需要学会定制属于我们的cell，展示出更多样的集合。 一、使用UICollectionView使用CollectionView可以从两种方式引入，首先最为简单的，便是直接创建UICollectionViewController，直接创建的方式获得的是一个继承字UICollectionViewContro">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/10/UIColectionView-point/"/>
+
+
+
+
+
+  <title>UIColectionView 知识点，从使用到丰富 | TYBBT的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TYBBT的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/10/UIColectionView-point/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TYBBT的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">UIColectionView 知识点，从使用到丰富</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-10T14:08:32+08:00">
+                2018-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>UICollectionView作为两大集合视图之一，在应用程序中至关重要，再学会简单的使用后还需要学会定制属于我们的cell，展示出更多样的集合。</p>
+<h2 id="一、使用UICollectionView"><a href="#一、使用UICollectionView" class="headerlink" title="一、使用UICollectionView"></a>一、使用UICollectionView</h2><p>使用CollectionView可以从两种方式引入，首先最为简单的，便是直接创建UICollectionViewController，直接创建的方式获得的是一个继承字UICollectionViewController的子类，UICollectionViewController自己便继承了UICollectionViewDelegate以及UICollectionViewDataSource两个协议，不需要再去做集成，直接实现其中的方法就可以了。<br>CollectionView作为一个集合视图，其展示的元素包含两个部分，UICollectionViewCell以及UICollectionViewLayout，cell适用于展示单个元素，layout是对cell在集合视图内部的布局做处理</p>
+<ol>
+<li>UIColletionViewCell<br>UICollectionViewCell，与tableviewcell相似，在苹果中，这种大范围使用的 cell都使用了重用机制，点入其定义可以看到，它继承自UICollectionReusableView，而其中则是包含了- prepareForReuse 这个方法，与Tableviewcell不同的是，collectioncell并没有提供给我们默认的视图，不能直接设置title、image之类的，由于collection大部分时候用与显示的都是比较复杂的、不只包含一个视图的多视图结构，所以并没有默认选项，我们可以只是单纯的现设个背景颜色进行区分<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">    //提供一个数据源对象</span><br><span class="line">    @property (strong) NSArray * <span class="built_in">source</span>;</span><br><span class="line"></span><br><span class="line">- (void)viewDidLoad</span><br><span class="line">&#123;</span><br><span class="line">    [super viewDidLoad];</span><br><span class="line">    </span><br><span class="line">    //使用数据源为单元格提供不同的色彩</span><br><span class="line">    self.source = @[@<span class="string">"CCF6A4"</span>,@<span class="string">"CE7725"</span>,@<span class="string">"AD456E"</span>,@<span class="string">"FFC4A5"</span>,@<span class="string">"A6CCB3"</span>,@<span class="string">"AFCADC"</span>];</span><br><span class="line">    </span><br><span class="line">    //为集合视图注册item用于重用机制，在复用时会通过CellIdentifier查找是否有能重用的单元。</span><br><span class="line">    [self.collectionView registerClass:[UICollectionViewCell class]         forCellWithReuseIdentifier:@<span class="string">"cell"</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView &#123;</span><br><span class="line">    <span class="built_in">return</span> 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section &#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">return</span> self.source.count;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath &#123;</span><br><span class="line">    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];</span><br><span class="line"></span><br><span class="line">    //处理每个单元格的数据，IndexPath代表着单元格在视图中的具体位置下标，如1-3为section1中的第3个位置的单元格（从0开始）</span><br><span class="line">    cell.backgroundColor = [UIColor colorWithRGB: self.source[indexPath.item] ];</span><br><span class="line"></span><br><span class="line">    <span class="built_in">return</span> cell;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>此处便创建了一个表格视图,但这是不够的，因为collectionview并不像tableview一样，collectionview的布局是由collectionviewlayout进行处理的，所以，可以在self.collectionViewLayout中处理相关的布局信息。</p>
+<ol>
+<li>UICollectionViewLayout<br>Layout作为管理布局的中枢，在collectionView中起着至关重要的作用，在collectionViewLayout中我们可以做很多方面的东西，不仅仅是布局，如果我们想在CollectionView中添加header或footerview，都需要在collectionView中添加额外视图以达到目的。<br>在做自己的布局前，先要了解几个重要的方法<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (void)prepareLayout;</span><br><span class="line"></span><br><span class="line">- (nullable NSArray&lt;__kindof UICollectionViewLayoutAttributes *&gt; *)layoutAttributesForElementsInRect:(CGRect)rect;</span><br><span class="line"></span><br><span class="line">- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>第一个方法从名字中可以看出，为布局做准备工作，在布局前，我们先要想好，布局要如何布，为此需要哪些标志位，为此需要对数据作何处理，在布局前我们要让视图做一种什么样的前置状态，这些处理都要在该方法中完成。<br>第二个方法用于提供在视图区域内所有单元的详细布局，何谓详细布局，就是每个位置的单元在整个集合视图上的位置，如果自定义一个布局，所有的位置计算都要有自己进行，不过这里可不是进行最终计算的位置，该方法返回的是一个数组，数组中便是所有位置的布局信息，但真正的计算，是在下面。<br>第三个方法，也就是我一般写真正计算的方法。方法二可以通过调用该方法获取不同位置的布局信息并添加至数组中返回，这个方法不是必要的，你可以将所有的计算移到方法二中，不过这看起来很杂乱无章。</p>
+<p>在了解了上述这些后，我们可以进行自己布局了，同样的，也可以更好的用系统提供的一个常规的非常实用的流布局UICollecitonViewFlowLayout。</p>
+<ol>
+<li>UICollectionViewFlowLayout<br>流布局是系统提供给我们的一个非常好用的布局方式，你只需要提供一些基本信息，就能让你的单元格以流的方式显示在视图上。当你了解上面的几个方法是再去看，很容易明白如何使用，此处不再赘述。</li>
+</ol>
+<h2 id="二、丰富我的CollectionView"><a href="#二、丰富我的CollectionView" class="headerlink" title="二、丰富我的CollectionView"></a>二、丰富我的CollectionView</h2><p>了解了以上功能后，就可以实现大部分的所需collectionview，但这还远远达不到我们所需要的‘定制’级别的程度，所谓定制，即使需要能实现更加酷炫的效果，而我们现在，可以说只是做到了展示大量数据时使用了除tableview之外的另一种方法而已。<br>在丰富我们的collection时，我们就按现在的样子，向上添加就够了，在添加前，我们先需要了解，我们能添加什么进去，在collectionview中，我们除了基本的视图外，还有两种视图，一种是装饰视图（DecorationView），一种是附加视图（SupplementaryView），装饰视图大部分情况下没那么实用，但还是要说的，那么装饰视图能用来做什么呢？装饰视图便是我们正常collection后面的背景图片，例如可以给我们的collection添加一个暑假的背景看起来像是把cell放到书架上一样。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString*)decorationViewKind atIndexPath:(NSIndexPath *)indexPath</span><br></pre></td></tr></table></figure></p>
+<p>方法是UICollectionViewLayout中的，用于做装饰视图在视图中的布局。</p>
+<p>除了装饰视图，实际在大部分情况下，我们用到的都是附加视图，<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath</span><br><span class="line"></span><br><span class="line">- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath;</span><br></pre></td></tr></table></figure></p>
+<p>第一个方法出自UICollectionViewDataSource，该方法用于向视图提供附加视图，在使用前先需要注册对应的view<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">UIKIT_EXTERN NSString *const UICollectionElementKindSectionHeader NS_AVAILABLE_IOS(6_0);</span><br><span class="line">UIKIT_EXTERN NSString *const UICollectionElementKindSectionFooter NS_AVAILABLE_IOS(6_0);</span><br><span class="line"></span><br><span class="line">    [self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@<span class="string">"CCC"</span>];</span><br><span class="line">    </span><br><span class="line">    [self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@<span class="string">"CCC"</span>];</span><br></pre></td></tr></table></figure></p>
+<p>两个视图分别用于提供头视图和尾视图，两个视图都属于附加视图，注册完后便可以在viewForSupplementaryElementOfKind中使用，可以根据indexpath 中的section来获取当前section并未不同的section提供不同的装饰视图，如果我们需要对装饰视图做更多变化的话，还可以使用第二个方法在UICollectionViewlayout中重载layoutAttributesForSupplementaryViewOfKind方法来改变对应section的附加视图布局。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/27/Objc-runtime/" rel="next" title="关于runtime中常用方法的一些使用">
+                <i class="fa fa-chevron-left"></i> 关于runtime中常用方法的一些使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/29/NStimerMemoryLeak/" rel="prev" title="CADisplayLink内存泄漏问题">
+                CADisplayLink内存泄漏问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">Artikel</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、使用UICollectionView"><span class="nav-number">1.</span> <span class="nav-text">一、使用UICollectionView</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、丰富我的CollectionView"><span class="nav-number">2.</span> <span class="nav-text">二、丰富我的CollectionView</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

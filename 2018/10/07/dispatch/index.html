@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在基本的dispatch掌握情况下看以下信息 dispatch 情况分析什么时候会启动新线程：在非主线程中创建一个异步任务，在串行队列上创建异步任务开启‘一条’新线程，在并行队列上创建异步任务会开启多条线程，任务被分配到各个线程中⚠️注意：创建dispatch_queue并不是创建线程，只是创建队列，该含义是大中枢派发，由队列判断是否需要开启新线程，需要        开启时才会创建新的线程并由队">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dispatch 多线程操作">
+<meta property="og:url" content="http://yoursite.com/2018/10/07/dispatch/index.html">
+<meta property="og:site_name" content="TYBBT的博客">
+<meta property="og:description" content="在基本的dispatch掌握情况下看以下信息 dispatch 情况分析什么时候会启动新线程：在非主线程中创建一个异步任务，在串行队列上创建异步任务开启‘一条’新线程，在并行队列上创建异步任务会开启多条线程，任务被分配到各个线程中⚠️注意：创建dispatch_queue并不是创建线程，只是创建队列，该含义是大中枢派发，由队列判断是否需要开启新线程，需要        开启时才会创建新的线程并由队">
+<meta property="og:updated_time" content="2018-10-08T07:11:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="dispatch 多线程操作">
+<meta name="twitter:description" content="在基本的dispatch掌握情况下看以下信息 dispatch 情况分析什么时候会启动新线程：在非主线程中创建一个异步任务，在串行队列上创建异步任务开启‘一条’新线程，在并行队列上创建异步任务会开启多条线程，任务被分配到各个线程中⚠️注意：创建dispatch_queue并不是创建线程，只是创建队列，该含义是大中枢派发，由队列判断是否需要开启新线程，需要        开启时才会创建新的线程并由队">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/10/07/dispatch/"/>
+
+
+
+
+
+  <title>dispatch 多线程操作 | TYBBT的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TYBBT的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/07/dispatch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TYBBT的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">dispatch 多线程操作</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-07T15:56:34+08:00">
+                2018-10-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在基本的dispatch掌握情况下看以下信息</p>
+<h2 id="dispatch-情况分析"><a href="#dispatch-情况分析" class="headerlink" title="dispatch 情况分析"></a>dispatch 情况分析</h2><p>什么时候会启动新线程：在非主线程中创建一个异步任务，<br>在串行队列上创建异步任务开启‘一条’新线程，<br>在并行队列上创建异步任务会开启多条线程，任务被分配到各个线程中<br>⚠️注意：创建dispatch_queue并不是创建线程，只是创建队列，该含义是大中枢派发，由队列判断是否需要开启新线程，需要        开启时才会创建新的线程并由队列将任务添加到某个线程中。</p>
+<h3 id="一、串行同步"><a href="#一、串行同步" class="headerlink" title="一、串行同步"></a>一、串行同步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">serialQueue.sync&#123; //创建同步任务，不会开启新线程，某人在当前所在上下文线程中执行</span><br><span class="line">    <span class="built_in">print</span>(1)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(2)         //在当前所在线程中执行</span><br><span class="line">serialQueue.sync&#123;</span><br><span class="line">    <span class="built_in">print</span>(3)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(4);</span><br></pre></td></tr></table></figure>
+<p>可以看到所有的任务都是在同一条线程中执行，所以执行的顺序是固定的。相当于没写sync</p>
+<h3 id="二、串行异步"><a href="#二、串行异步" class="headerlink" title="二、串行异步"></a>二、串行异步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">serialQueue.async&#123; //异步任务会开启新线程</span><br><span class="line">    <span class="built_in">print</span>(1)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(2)     //在当前线程中执行</span><br><span class="line">serialQueue.async&#123;  //串行队列只开启一条线程，该任务也被添加到上面的新线程中</span><br><span class="line">    <span class="built_in">print</span>(3)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(4)</span><br></pre></td></tr></table></figure>
+<p>由于新建了一条线程，相当于另一条世界线，两个线程相互独立，但在各自线程中保持有序，首先说由于都是串行，所以1一定先于3，2一定先于4，但还有一个要注意的就是2和3的顺序，从添加顺序看，1执行的时间取决于多方面，线程创建时间，添加任务的耗时等等，所以1和2的顺序不固定，但在添加完1后，顺序是执行完2后才会添加3，所以还要注意2一定比3先输出，3的情况同1，可能立即执行，也可能由于某种原因耗时，所以与4随机排布</p>
+<h3 id="三、串行异步-套-同步"><a href="#三、串行异步-套-同步" class="headerlink" title="三、串行异步 套 同步"></a>三、串行异步 套 同步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(1)</span><br><span class="line">serialQueue.async&#123;  //异步任务，独立在新线程中完成</span><br><span class="line">    <span class="built_in">print</span>(2)        //执行，</span><br><span class="line">    serialQueue.sync&#123;</span><br><span class="line">        <span class="built_in">print</span>(3)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">print</span>(4)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(5)    //当前线程执行</span><br></pre></td></tr></table></figure>
+<p>在添加1后，开启一条新线程执行异步任务，在新线程中，先执行2，接下来执行一个同步任务3，不会开启新线程而是将任务添加到当前线程中作为下一个任务，但执行到这里由于是一个同步任务，所以会阻塞当前线程等待执行结果，需要先等待3任务结束才能执行下一个任务，可3是当前队列的下一个任务，而且需要等待上一个任务完成才会执行，导致互相等待，产生死锁，但5任务是在另一个线程中没有影响依旧会执行切顺序可以在2的前后</p>
+<h3 id="四、串行同步-套-异步"><a href="#四、串行同步-套-异步" class="headerlink" title="四、串行同步 套 异步"></a>四、串行同步 套 异步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(1)</span><br><span class="line">seialQueue.sync&#123;</span><br><span class="line">    <span class="built_in">print</span>(2)</span><br><span class="line">    serialQueue.async&#123;</span><br><span class="line">        <span class="built_in">print</span>(3)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">print</span>(4)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(5)</span><br></pre></td></tr></table></figure>
+<p>江湖规矩先执行1，任务为同步任务，所以不开启新线程，此时会执行2，接着是任务3一个异步任务，开启新线程，异步任务不需等待结果，顺序执行下面的4，5.任务3在添加完成后的任意时间都有可能完成。</p>
+<h3 id="五、并行同步"><a href="#五、并行同步" class="headerlink" title="五、并行同步"></a>五、并行同步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">concurrentQueue.sync&#123;</span><br><span class="line">    <span class="built_in">print</span>(1)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(2)</span><br><span class="line">concurrentQueue.sync&#123;</span><br><span class="line">    <span class="built_in">print</span>(3)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(4)</span><br></pre></td></tr></table></figure>
+<p>和串行队列是一样，由于不属于开启新线程条件，所以都是在当前线程中顺序执行。</p>
+<h3 id="六、并行异步"><a href="#六、并行异步" class="headerlink" title="六、并行异步"></a>六、并行异步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">concurrentQueue.async&#123;</span><br><span class="line">    <span class="built_in">print</span>(1)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(2)</span><br><span class="line">concurrentQueue.async&#123;</span><br><span class="line">    <span class="built_in">print</span>(3)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(4)</span><br></pre></td></tr></table></figure>
+<p>可以确定的只有2一定比3和4先执行，其他完全随机乱序</p>
+<h3 id="七、并行异步-套-同步"><a href="#七、并行异步-套-同步" class="headerlink" title="七、并行异步 套 同步"></a>七、并行异步 套 同步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(1)</span><br><span class="line">concurrentQueue.async&#123;</span><br><span class="line">    <span class="built_in">print</span>(2)</span><br><span class="line">    concurrentQueue.sync&#123;</span><br><span class="line">        <span class="built_in">print</span>(3)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">print</span>(4)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(5)</span><br></pre></td></tr></table></figure>
+<p>1打头，异步任务创建新线程，可能先2，也可能先5，异步任务中的同步任务不会创建新线程所以顺序执行2，3，4，而5在1后面随机插入，</p>
+<h3 id="八、并行同步-套-异步"><a href="#八、并行同步-套-异步" class="headerlink" title="八、并行同步 套 异步"></a>八、并行同步 套 异步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(1)</span><br><span class="line">concurrentQueue.sync&#123;</span><br><span class="line">    <span class="built_in">print</span>(2)</span><br><span class="line">    concurrentQueue.async&#123;</span><br><span class="line">        <span class="built_in">print</span>(3)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">print</span>(4)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(5)</span><br></pre></td></tr></table></figure>
+<p>1打头，同步任务不创建新线程，顺序执行2，3任务为异步任务，创建新线程，在4，5顺序排布下，3在2后随机插入。</p>
+<h3 id="九、并行异步-套-异步"><a href="#九、并行异步-套-异步" class="headerlink" title="九、并行异步 套 异步"></a>九、并行异步 套 异步</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">这种情况单说的原因在于其完全随机性，</span><br><span class="line">dispatch_async(dq_concurrent, ^&#123;</span><br><span class="line">    NSLog(@<span class="string">"1,%@"</span>,[NSThread currentThread]);</span><br><span class="line">    dispatch_async(dq_concurrent, ^&#123;</span><br><span class="line">        NSLog(@<span class="string">"1.1,%@"</span>,[NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(dq_concurrent, ^&#123;</span><br><span class="line">        NSLog(@<span class="string">"2.1,%@"</span>,[NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(dq_concurrent, ^&#123;</span><br><span class="line">        NSLog(@<span class="string">"2.5,%@"</span>,[NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(dq_concurrent, ^&#123;</span><br><span class="line">        NSLog(@<span class="string">"2.6,%@"</span>,[NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(dq_concurrent, ^&#123;</span><br><span class="line">        NSLog(@<span class="string">"2.7,%@"</span>,[NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面这种情况下，多次试验，出现的实验结果完全随机，而且线程的创建也是完全靠队列来分配，我们所说的见到异步创建线程的方法也不适用，实际上是见到异步弱无可用线程就会开启新线程。所以这里的线程数和执行顺序完全随机。</p>
+<h3 id="⚠️绝对不能做的事"><a href="#⚠️绝对不能做的事" class="headerlink" title="⚠️绝对不能做的事"></a>⚠️绝对不能做的事</h3><p>无论在什么位置<br>dispatch_sync(dispatch_get_main_queue(),block);<br>绝对不能发生，100%死锁<br>主队列为串行队列，无论何时使用这个，无论在哪个线程使用这个，都会给主线程添加一个同步任务，该代码块会等待内部任务完成并阻塞主线程，而此时该代码块中的任务在已经被阻塞的主线程中永远无法执行。</p>
+<h2 id="Dispatch-group"><a href="#Dispatch-group" class="headerlink" title="Dispatch_group"></a>Dispatch_group</h2><p>dispatch_group_t用于创建一个group，group用于整合任务，我们需要在某些任务结束后利用数据执行些整合任务，此时使用group，其实用简单易懂的写法来说更容易理解<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dispatch_group&#123;</span><br><span class="line">dispatch_async(serialQueue/concurrentQueue,^&#123;&#125;)</span><br><span class="line">dispatch_async(serialQueue/concurrentQueue,^&#123;&#125;)</span><br><span class="line">&#125; completion: ^&#123;</span><br><span class="line">//Done</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这种写法更容易理解，但是当然不能这么用,应该像下面这样建立<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dispatch_group_async(group,serialQueue/concurrentQueue, ^&#123; block&#125;);</span><br><span class="line">dispatch_group_async(group,serialQueue/concurrentQueue, ^&#123; block&#125;);</span><br></pre></td></tr></table></figure></p>
+<h3 id="接受完成信号的方式有两种"><a href="#接受完成信号的方式有两种" class="headerlink" title="接受完成信号的方式有两种"></a>接受完成信号的方式有两种</h3><p>1、dispatch_group_notify(group, queue,^{//Done});<br>    该方法会受到组执行全部结束，收到通知并触发block，类似于observervlueforkey的触发方式<br>2、dispatch_group_wait(group,DISPATCH_TIME_FOREVER);<br>    该方法会阻塞当前线程并等待组任务全部执行结束，在继续执行，由于会阻塞线程所以不推荐使用</p>
+<h3 id="同步执行与异步执行"><a href="#同步执行与异步执行" class="headerlink" title="同步执行与异步执行"></a>同步执行与异步执行</h3><p>实际上dispatch_group_async（）方法会在一个新线程执行任务，但相当于一个新主线程，也是串行的。所以同样也有时需要有同步执行与异步执行，但要注意 dispatch_group_async() 与 dispatch_async()不能嵌套使用，notify方法是在结束后收到通知出发，若在group_async中使用async，async会开启新线程，当前任务视作直接返回，所以算是完成任务，此时如果都是这种，notify会在实际并未执行完任务的情况下触发。<br>此时应该使用另一种 dispatch_group_enter(group)\ dispatch_group_leave(group) ,该方法是用范围来指定group<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dispatch_group_enter(group)</span><br><span class="line">dispatch_async(queue,^&#123;</span><br><span class="line">    dispatch_group_leave(group)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<p>enter与leave之间的视作添加进group，此时notify会一直追踪group，当group中无任务时便会触发notify，并且可以看到aysnc任务没结束前group中任务不算结束。</p>
+<h2 id="Dispatch-barrier"><a href="#Dispatch-barrier" class="headerlink" title="Dispatch_barrier"></a>Dispatch_barrier</h2><p>栅栏代码块，也是一种处理任务处理次序的方式，barrier块前的任务会先执行，然后此时会遇到barrier，barrier其实不是太关心队列的同步异步，而是比加关注自己的同步异步</p>
+<ul>
+<li>dispatch_barrier_sync属于完全阻隔，类似于在这停顿，和wait效果类似，等到前面全部完成，此时在单独执行barrierBlock，等到结束以后，在执行后面的</li>
+<li>dispatch_barrier_async属于不完全阻隔，类似于将barrier添加到了队列中而不是放置在当前位置，会将队列中的人物分割，但所有不属于该队列的人物则不会收到barrier限制，类似一个过滤器，所有满足条件的（属于这个队列）都会被挡住，执行完自己的任务才会继续向下，但其他的队列可以顺畅通行。<br>两种barrier有一个共同的特性就是，barrier一定是被单独执行。</li>
+</ul>
+<h2 id="多线程同步任务串行执行"><a href="#多线程同步任务串行执行" class="headerlink" title="多线程同步任务串行执行"></a>多线程同步任务串行执行</h2><p>有一种情况，有一个计算分为三部分，第二部分依赖于第一部分，第三部分依赖于前两个部分，此时的状况就是任务分为三部分在不同的线程上并行，但要是需要顺序的情况下多线程串行的话呢，此时就需要设置三个线程的优先级相同，那么任务就会按添加顺序依次执行了。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_set_target_queue(dq_serial_one, dq_serial_target);</span><br><span class="line">dispatch_set_target_queue(dq_serial_two, dq_serial_target);</span><br><span class="line">dispatch_set_target_queue(dq_serial_three, dq_serial_target);</span><br></pre></td></tr></table></figure></p>
+<p>当然此时用NSOperation操作更加便利。</p>
+<h2 id="线程安全的信号量"><a href="#线程安全的信号量" class="headerlink" title="线程安全的信号量"></a>线程安全的信号量</h2><h3 id="dispatch-semaphore-t"><a href="#dispatch-semaphore-t" class="headerlink" title="dispatch_semaphore_t"></a>dispatch_semaphore_t</h3><p>如何保证线程安全是在处理数据时我们经常该考虑的事情，为了防止数据被各个线程竞争导致不可控的结果，我们需要做处理，就是使用锁的机制。dispatch_semaphore是dispatch中提供给我们的信号量<br>在使用时，只需要创建信号量 dispatch_semaphore_create（Int times）就可以了，我们通过dispatch_semaphore_wait进行等待任务，此举会使信号量的times自减，在结束任务时使用signal可以自增以表示任务完成。<br>信号量很好用但也要熟悉其他的锁</p>
+<h3 id="NSLock"><a href="#NSLock" class="headerlink" title="NSLock"></a>NSLock</h3><p>NSLock也是一种很常用的锁,使用起来也是最简单的一种，先获取一个实例变量lock，之后在使用的时候lock 与 unlock就够了，但还有一点就是需要注意，一般在lock前我们还需要一步trylock，因为如果有同时多个调用同时lock会出错，此时锁已经被上锁但想二次上锁所以会出问题，所以先进行一步判断，当确认上一个任务完成可以开始在关上自己的锁防止其他人占用。</p>
+<h3 id="NScondition"><a href="#NScondition" class="headerlink" title="NScondition"></a>NScondition</h3><p>类似于lock+semaphore，其使用也可以为方法上锁，还可以通过信号量进行数据同步<br>使用[condition lock]与[condition unlock]进行上锁和解锁<br>使用[condition wait] 与 [condition signal]进行同步<br>需要注意的是同步操作需要在锁域内部实现。<br>即：lock{ signal }unlock   \   lock{ wait }unlock</p>
+<h3 id="NSRecursiveLock"><a href="#NSRecursiveLock" class="headerlink" title="NSRecursiveLock"></a>NSRecursiveLock</h3><p>递归锁，我们上面遇到一种情况就是lock使用前要trylock的问题，其根源在于一把锁不能被多次持有，所以遇到递归调用内部情况时会导致死锁<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">fun add5 (int x)-&gt; int&#123;</span><br><span class="line">    <span class="keyword">if</span>(x&gt;100) <span class="built_in">return</span> x;</span><br><span class="line">    [lock lock]</span><br><span class="line">    <span class="keyword">for</span>（int  i=0;i&lt;5;i++）&#123;</span><br><span class="line">        x+=add(i);</span><br><span class="line">    &#125;</span><br><span class="line">    [lock unlock];</span><br><span class="line">    <span class="built_in">return</span> x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在进行递归调用时，lock会出现多次被锁的情况，即使使用trylock也会等待无法继续执行导致死锁。所以才会出现递归锁，递归锁会防止外部介入而在内部递归上锁并递归解锁的方式解决需要递归调用时上锁的状况</p>
+<h3 id="OSSpinLock"><a href="#OSSpinLock" class="headerlink" title="OSSpinLock"></a>OSSpinLock</h3><p>自旋锁，貌似已经凉了，有大bug</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/29/NStimerMemoryLeak/" rel="next" title="CADisplayLink内存泄漏问题">
+                <i class="fa fa-chevron-left"></i> CADisplayLink内存泄漏问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/25/bugList/" rel="prev" title="Bug历程汇总">
+                Bug历程汇总 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">Artikel</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#dispatch-情况分析"><span class="nav-number">1.</span> <span class="nav-text">dispatch 情况分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、串行同步"><span class="nav-number">1.1.</span> <span class="nav-text">一、串行同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、串行异步"><span class="nav-number">1.2.</span> <span class="nav-text">二、串行异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、串行异步-套-同步"><span class="nav-number">1.3.</span> <span class="nav-text">三、串行异步 套 同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、串行同步-套-异步"><span class="nav-number">1.4.</span> <span class="nav-text">四、串行同步 套 异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、并行同步"><span class="nav-number">1.5.</span> <span class="nav-text">五、并行同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#六、并行异步"><span class="nav-number">1.6.</span> <span class="nav-text">六、并行异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#七、并行异步-套-同步"><span class="nav-number">1.7.</span> <span class="nav-text">七、并行异步 套 同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#八、并行同步-套-异步"><span class="nav-number">1.8.</span> <span class="nav-text">八、并行同步 套 异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#九、并行异步-套-异步"><span class="nav-number">1.9.</span> <span class="nav-text">九、并行异步 套 异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#⚠️绝对不能做的事"><span class="nav-number">1.10.</span> <span class="nav-text">⚠️绝对不能做的事</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dispatch-group"><span class="nav-number">2.</span> <span class="nav-text">Dispatch_group</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接受完成信号的方式有两种"><span class="nav-number">2.1.</span> <span class="nav-text">接受完成信号的方式有两种</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步执行与异步执行"><span class="nav-number">2.2.</span> <span class="nav-text">同步执行与异步执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dispatch-barrier"><span class="nav-number">3.</span> <span class="nav-text">Dispatch_barrier</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程同步任务串行执行"><span class="nav-number">4.</span> <span class="nav-text">多线程同步任务串行执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程安全的信号量"><span class="nav-number">5.</span> <span class="nav-text">线程安全的信号量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dispatch-semaphore-t"><span class="nav-number">5.1.</span> <span class="nav-text">dispatch_semaphore_t</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSLock"><span class="nav-number">5.2.</span> <span class="nav-text">NSLock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NScondition"><span class="nav-number">5.3.</span> <span class="nav-text">NScondition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSRecursiveLock"><span class="nav-number">5.4.</span> <span class="nav-text">NSRecursiveLock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OSSpinLock"><span class="nav-number">5.5.</span> <span class="nav-text">OSSpinLock</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

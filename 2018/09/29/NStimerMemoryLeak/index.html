@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="什么导致的内存泄漏？NSTimer、DisplayLink 都是一种系统的定时器，先看看怎么使用 CADisplayLink &amp;amp; NSTimer1234567891011121314151617181920212223@property (nonatomic, strong) NSTimer * timer;@property (nonatomic, strong) CADisplayLi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CADisplayLink内存泄漏问题">
+<meta property="og:url" content="http://yoursite.com/2018/09/29/NStimerMemoryLeak/index.html">
+<meta property="og:site_name" content="TYBBT的博客">
+<meta property="og:description" content="什么导致的内存泄漏？NSTimer、DisplayLink 都是一种系统的定时器，先看看怎么使用 CADisplayLink &amp;amp; NSTimer1234567891011121314151617181920212223@property (nonatomic, strong) NSTimer * timer;@property (nonatomic, strong) CADisplayLi">
+<meta property="og:updated_time" content="2018-09-29T06:43:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CADisplayLink内存泄漏问题">
+<meta name="twitter:description" content="什么导致的内存泄漏？NSTimer、DisplayLink 都是一种系统的定时器，先看看怎么使用 CADisplayLink &amp;amp; NSTimer1234567891011121314151617181920212223@property (nonatomic, strong) NSTimer * timer;@property (nonatomic, strong) CADisplayLi">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/29/NStimerMemoryLeak/"/>
+
+
+
+
+
+  <title>CADisplayLink内存泄漏问题 | TYBBT的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TYBBT的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/29/NStimerMemoryLeak/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TYBBT的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CADisplayLink内存泄漏问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-29T11:38:38+08:00">
+                2018-09-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="什么导致的内存泄漏？"><a href="#什么导致的内存泄漏？" class="headerlink" title="什么导致的内存泄漏？"></a>什么导致的内存泄漏？</h2><p>NSTimer、DisplayLink 都是一种系统的定时器，先看看怎么使用</p>
+<h3 id="CADisplayLink-amp-NSTimer"><a href="#CADisplayLink-amp-NSTimer" class="headerlink" title="CADisplayLink &amp; NSTimer"></a>CADisplayLink &amp; NSTimer</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">@property (nonatomic, strong) NSTimer * timer;</span><br><span class="line">@property (nonatomic, strong) CADisplayLink * displayLink;</span><br><span class="line"></span><br><span class="line">- (void)makeTimer</span><br><span class="line">&#123;</span><br><span class="line">_timer = [NSTimer timerWithTimeInterval:3 target:self selector:@selector(refresh) userInfo:nil repeats:YES];</span><br><span class="line">[[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)makeDisplayLink</span><br><span class="line">&#123;</span><br><span class="line">_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(refresh)];</span><br><span class="line">[_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)dealloc</span><br><span class="line">&#123;</span><br><span class="line">NSLog(@<span class="string">"dealloc"</span>);</span><br><span class="line">[_timer invalidate];</span><br><span class="line">[_displayLink invalidate];</span><br><span class="line">_timer = nil;</span><br><span class="line">_displayLink = nil;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单的使用一下定时器，这是在程序中基本中的基本，但此时，如果我们做一个pushpop操作，那么就会发现，dealloc方法中的释放全部未执行，也可以看一下debug面板中CPU的占用率发现持续升高，每做一次pushpop操作就会导致一份timer内存的泄漏。</p>
+<h3 id="内存泄漏的原因"><a href="#内存泄漏的原因" class="headerlink" title="内存泄漏的原因"></a>内存泄漏的原因</h3><p>在使用Memory Graph查看后可以发现，我们push了几次，就会出现几个包含了Timer的控制器，而其原因就是Runloop引用了NStimer，而timer引用着控制器，导致控制器无法释放，控制器无法释放就导致了不能执行timer的invalidate方法不能释放timer，这样就导致了timer与controller之间的循环引用，从而导致内存泄漏。同理displaylink也同样。<br>同样也可以从代码看出两者的初始化方法都使用self作为target，而在计时器内部self会被持有，但self也持有了timer。</p>
+<h3 id="NSTimer优化"><a href="#NSTimer优化" class="headerlink" title="NSTimer优化"></a>NSTimer优化</h3><p>苹果还是苹果，发现了问题还是会给出补救措施的，使用上述的方法创建的Timer确实会导致内存泄漏，但是，我们可以使用新的方法获得定时器。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_timer = [NSTimer timerWithTimeInterval:3 repeats:YES block:^(NSTimer * _Nonnull timer) &#123;</span><br><span class="line">            NSLog(@<span class="string">"logTime"</span>);</span><br><span class="line">        &#125;];</span><br></pre></td></tr></table></figure></p>
+<p>此时，我们在使用MemGraph查看一下可以发现，在pop后便不会再出现第二个控制器，dealloc方法被执行。</p>
+<h3 id="CADisplayLink优化"><a href="#CADisplayLink优化" class="headerlink" title="CADisplayLink优化"></a>CADisplayLink优化</h3><p>CADisplayLink在我们查看API后发现并无这种“高能”方法，所以我们只能自己想办法。想要解决内存泄漏，就是要解决循环引用，要打破循环引用说起来也简单，我们可以利用“中间人”来进行防治循环引用。<br>这种方法来自于YYKit中的YYFPSLabel，将使用NSProxy来解决。<br>NSProxy这个类是一个抽象基类，详细的可以自己去找找，该类最主要的两个方法：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">- (void)forwardInvocation:(NSInvocation *)invocation;</span><br><span class="line">- (nullable NSMethodSignature *)methodSignatureForSelector:(SEL)sel;</span><br></pre></td></tr></table></figure></p>
+<p>通过这两个转发消息的方法，我们可以制作一个中间人，由中间人将关系弱化，并将信息在两者之间传递。首先，我们创建一个NSProxy的子类-WeakProxy，我们为该类添加一个target用作消息的接受者<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@interface WeakProxy : NSProxy</span><br><span class="line">@property (nonatomic, weak, <span class="built_in">readonly</span>) id target;</span><br><span class="line">+ (instancetype)proxyWithTarget: (id)target;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure></p>
+<p>接下来是内部实现，我们通过将WeakProxy方法所接收到的消息，传递给target。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">+ (instancetype)proxyWithTarget:(id)target</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">return</span> [[WeakProxy alloc] initWithTarget:target];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (instancetype)initWithTarget: (id)target</span><br><span class="line">&#123;</span><br><span class="line">    _target = target;</span><br><span class="line">    <span class="built_in">return</span> self;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (NSMethodSignature *)methodSignatureForSelector:(SEL)sel</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">return</span> [_target methodSignatureForSelector:sel];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)forwardInvocation:(NSInvocation *)invocation</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">if</span> ([_target respondsToSelector:[invocation selector]]) &#123;</span><br><span class="line">    [invocation invokeWithTarget:_target];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>既然有了WeakProxy我们便知道了要如何解决循环引用了，我们将self设为target，并使用weak形式持有self。<br>此时在使用Displaylink初始化方法时，我们使用WeakProxy作为displaylink的持有对象，现在互相持有的是displaylink与weakProxy，而proxy弱引用了target。当self被释放时，只有一个弱引用所以可以成功释放。而释放后便可以执行dealloc方法，在方法中无效化了displaylink，displaylink释放从而释放proxy，打破了循环引用解决了内存泄漏。</p>
+<p>更多参考：<br>WeakProxy：  <a href="https://www.jianshu.com/p/8adb7f8dec82" target="_blank" rel="noopener">https://www.jianshu.com/p/8adb7f8dec82</a><br>Memory Graph：<a href="https://www.jianshu.com/p/7fec49cc2a03" target="_blank" rel="noopener">https://www.jianshu.com/p/7fec49cc2a03</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/10/UIColectionView-point/" rel="next" title="UIColectionView 知识点，从使用到丰富">
+                <i class="fa fa-chevron-left"></i> UIColectionView 知识点，从使用到丰富
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/07/dispatch/" rel="prev" title="dispatch 多线程操作">
+                dispatch 多线程操作 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">Artikel</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么导致的内存泄漏？"><span class="nav-number">1.</span> <span class="nav-text">什么导致的内存泄漏？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CADisplayLink-amp-NSTimer"><span class="nav-number">1.1.</span> <span class="nav-text">CADisplayLink &amp; NSTimer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存泄漏的原因"><span class="nav-number">1.2.</span> <span class="nav-text">内存泄漏的原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSTimer优化"><span class="nav-number">1.3.</span> <span class="nav-text">NSTimer优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CADisplayLink优化"><span class="nav-number">1.4.</span> <span class="nav-text">CADisplayLink优化</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
