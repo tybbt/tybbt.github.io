@@ -228,6 +228,145 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/25/hexo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TYBBT的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/25/hexo/" itemprop="url">hexo+github搭建以及迁移</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-25T17:38:45+08:00">
+                2018-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>以防后面再望，mark一下</p>
+<h1 id="搭建github-hexo"><a href="#搭建github-hexo" class="headerlink" title="搭建github + hexo"></a>搭建github + hexo</h1><h2 id="安装所需工具"><a href="#安装所需工具" class="headerlink" title="安装所需工具"></a>安装所需工具</h2><h3 id="1-nodejs"><a href="#1-nodejs" class="headerlink" title="1.nodejs"></a>1.nodejs</h3><pre><code>首先终端运行 node -v，查看是否存在，若不存在，直接官网下载 recommend for most users 版本就行。（这样能省的安装homebrew，省事- -）
+</code></pre><h3 id="2-github"><a href="#2-github" class="headerlink" title="2. github"></a>2. github</h3><pre><code>目前来说，使用Xcode会自动给你安github，电脑上肯定不会缺Xcode的，就懒得去查了
+</code></pre><h3 id="3-hexo"><a href="#3-hexo" class="headerlink" title="3.hexo"></a>3.hexo</h3><pre><code>主角来了，安装hexo使用npm就行了，终端敲击：sudo npm -g hexo，等待一会就能下完，使用hexo -v看一下下
+</code></pre><h2 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h2><h3 id="本地相关"><a href="#本地相关" class="headerlink" title="本地相关"></a>本地相关</h3><pre><code>1. 找个位置建个文件夹，叫hexo，blog都行。终端cd进来，运行 hexo init，初始化hexo相关，
+2. 打开_config.yml,可以手动更改theme，忘了咋改了，反正也不用改就不找了
+3. 使用hexo generate生成静态html文件，
+</code></pre><h3 id="github端"><a href="#github端" class="headerlink" title="github端"></a>github端</h3><pre><code>1. 终端运行cd ~/.ssh，查看是否存在ssh文件，没有的话就是not found directory
+2. 生成ssh 终端运行 sudo ssh-keygen -t rsa -C &quot;github-email@email.com&quot;，接下来有三步，先输入id_rsa，然后回车，然后回车，结束。
+3.打开你的电脑，搜索id_rsa.pub这个文件，使用sublime之类的软件打开，全部复制下来。
+4.登录github网页，进入setting-&gt; ssh&amp;gub key -&gt; add ssh key
+5.随便起个title，把复制的从ssh开始的那个复制，保存。
+6.终端输入 git config --global user.name &quot;name&quot;
+          git config --global user.email &quot;youremail&quot;
+7.ssh git@github.com 测试链接
+8.将_config.yml中最后deploy下的网址改成git上建的新仓库 type改为git 分支是master就行了
+</code></pre><h2 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h2><p>此时使用sudo hexo deploy 同步新网页到github上</p>
+<h1 id="迁移hexo"><a href="#迁移hexo" class="headerlink" title="迁移hexo"></a>迁移hexo</h1><pre><code>1. 前面的过程到hexo init处都一样
+2. 将原hexo目录全部复制粘贴进来，全部替换，省事
+3.重新配置github端，将新sshx替换掉以前的，或者新加一个都行
+</code></pre>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/25/bugList/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1065,7 +1204,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">Artikel</span>
                 </a>
               </div>
