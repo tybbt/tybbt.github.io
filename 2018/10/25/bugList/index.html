@@ -85,7 +85,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/10/25/bugList/index.html">
 <meta property="og:site_name" content="TYBBT的博客">
 <meta property="og:description" content="模版：12345### Q: 问题Date：日期Detail：细节描述Proj：工程A：原因 Q: 关于转场动画animationBlock执行BugDate：2018-10-25Detail：在转场动画中使用animationwithDuration：animate：complete：时animate块执行了，但无动画效果，complete块未执行。此时导致toView（或fromView）保持">
-<meta property="og:updated_time" content="2018-10-25T09:10:20.754Z">
+<meta property="og:updated_time" content="2018-10-28T13:24:48.482Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Bug历程汇总">
 <meta name="twitter:description" content="模版：12345### Q: 问题Date：日期Detail：细节描述Proj：工程A：原因 Q: 关于转场动画animationBlock执行BugDate：2018-10-25Detail：在转场动画中使用animationwithDuration：animate：complete：时animate块执行了，但无动画效果，complete块未执行。此时导致toView（或fromView）保持">
@@ -300,6 +300,7 @@
       
         <p>模版：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### Q: 问题</span></span><br><span class="line">Date：日期</span><br><span class="line">Detail：细节描述</span><br><span class="line">Proj：工程</span><br><span class="line">A：原因</span><br></pre></td></tr></table></figure></p>
 <h3 id="Q-关于转场动画animationBlock执行Bug"><a href="#Q-关于转场动画animationBlock执行Bug" class="headerlink" title="Q: 关于转场动画animationBlock执行Bug"></a>Q: 关于转场动画animationBlock执行Bug</h3><p>Date：2018-10-25<br>Detail：在转场动画中使用animationwithDuration：animate：complete：时animate块执行了，但无动画效果，complete块未执行。此时导致toView（或fromView）保持动画前状态，complete永远不执行。<br>Proj：Demo/项目预热/UIDemo<br>A：转场动画主要分为动画控制器与交互控制器，本bug由于两者全部添加，但交互控制器未实现，此时交互代理中返回这个没有具体实现的控制器，导致执行过程出现问题，从而导致动画不能结束，而动画过程也无法执行。</p>
+<h3 id="Q-Xcode10编译警告"><a href="#Q-Xcode10编译警告" class="headerlink" title="Q: Xcode10编译警告"></a>Q: Xcode10编译警告</h3><p>Date：2018-10-28<br>Detail：2018-10-28 21:05:20.559267+0800 SocketTalk[40965:2824969] libMobileGestalt MobileGestalt.c:890: MGIsDeviceOneOfType is not supported on this platform.<br>Proj：All<br>A：在 EditSchema -&gt; Arguments -&gt; Enviroment Variable  添加新KV ： OS_ACTIVITY_MODE ：Disable</p>
 
       
     </div>
@@ -450,7 +451,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-关于转场动画animationBlock执行Bug"><span class="nav-number">1.</span> <span class="nav-text">Q: 关于转场动画animationBlock执行Bug</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-关于转场动画animationBlock执行Bug"><span class="nav-number">1.</span> <span class="nav-text">Q: 关于转场动画animationBlock执行Bug</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-Xcode10编译警告"><span class="nav-number">2.</span> <span class="nav-text">Q: Xcode10编译警告</span></a></li></ol></div>
             
 
           </div>
