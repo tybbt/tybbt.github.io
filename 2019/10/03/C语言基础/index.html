@@ -79,16 +79,16 @@
 
 
 
-<meta name="description" content="##1.结构体定义方式 结构体是【  struct   name   {成员变量列表};   】这种结构的就是结构体。    ------   ----      ^         ^      |         | 结构体关键字   结构体名称 一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。 可以结合出以下合法形式：">
+<meta name="description" content="##1.结构体定义方式 结构体是【  struct   name   {成员变量列表};   】这种结构的就是结构体。 一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。 可以结合出以下合法形式：    1）typedef struct {成员变量} StructName;    ☆ 最常用的方式    最常用的方法，将一个结">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C语言基础">
 <meta property="og:url" content="http://yoursite.com/2019/10/03/C语言基础/index.html">
 <meta property="og:site_name" content="TYBBT的博客">
-<meta property="og:description" content="##1.结构体定义方式 结构体是【  struct   name   {成员变量列表};   】这种结构的就是结构体。    ------   ----      ^         ^      |         | 结构体关键字   结构体名称 一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。 可以结合出以下合法形式：">
-<meta property="og:updated_time" content="2020-05-03T03:13:21.067Z">
+<meta property="og:description" content="##1.结构体定义方式 结构体是【  struct   name   {成员变量列表};   】这种结构的就是结构体。 一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。 可以结合出以下合法形式：    1）typedef struct {成员变量} StructName;    ☆ 最常用的方式    最常用的方法，将一个结">
+<meta property="og:updated_time" content="2020-05-03T03:26:06.974Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C语言基础">
-<meta name="twitter:description" content="##1.结构体定义方式 结构体是【  struct   name   {成员变量列表};   】这种结构的就是结构体。    ------   ----      ^         ^      |         | 结构体关键字   结构体名称 一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。 可以结合出以下合法形式：">
+<meta name="twitter:description" content="##1.结构体定义方式 结构体是【  struct   name   {成员变量列表};   】这种结构的就是结构体。 一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。 可以结合出以下合法形式：    1）typedef struct {成员变量} StructName;    ☆ 最常用的方式    最常用的方法，将一个结">
 
 
 
@@ -300,14 +300,10 @@
       
         <p>##1.结构体定义方式</p>
 <p>结构体是【  struct   name   {成员变量列表};   】这种结构的就是结构体。</p>
-<pre><code>   ------   ----
-     ^         ^
-     |         |
-结构体关键字   结构体名称
-</code></pre><p>一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。</p>
+<p>一般用于搭配的类型定义 【 typedef  A  B ;  】意思：将 A 这种东西定义为一个类型，类型名称叫做 B 。</p>
 <p>可以结合出以下合法形式：<br>    1）typedef struct {成员变量} StructName;<br>    ☆ 最常用的方式<br>    最常用的方法，将一个结构体生命为一个StructName类型，后续使用只需要将这整体看作一个类型即可。<br>        使用：StructName data；<br>    2）typedef struct strName {成员变量} StructName;<br>    将结构体name定义为一个数据类型StructName，后续使用方法和上面相同<br>        使用：StructName data；<br>        可用但不推荐：struct strName data；<br>    3）typedef struct strName {成员变量};<br>    没啥卵用，相当于定义为类型<br>        使用：struct strName data；<br>    4）struct strName {成员变量}data1，data2;<br>    定义一个结构体strName，并可以直接定义两个该结构体类型的结构体变量。</p>
 <p>##2.结构体（.）与（-&gt;）   （左部）符号（右部）<br>使用（.)的情况：当左部为结构体变量时，使用(.)<br>              当左部为结构体指针时，使用(-&gt;)<br>如：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;int member&#125;Structure;</span><br><span class="line">Structure people = &#123;&#125;;  //结构体变量</span><br><span class="line">Structure *pPeople; //结构体指针</span><br><span class="line">pPeople = (Structure *)malloc(sizeof(Structure));</span><br><span class="line"></span><br><span class="line">//要获取成员变量时:</span><br><span class="line">people.mem = a;</span><br><span class="line">pPeople-&gt;mem = a;</span><br><span class="line">(*pPeople).mem = a;</span><br></pre></td></tr></table></figure></p>
-<p>##3.理解复杂声明可用的“右左法则”：<br>从变量名看起，先往右，再往左，碰到一个圆括号就调转阅读的方向；括号内分析完就跳出括号，还是按先右后左的顺序，如此循环，直到整个声明分析完。举例：<br>    1)int (<em>func)(int </em>p);<br>        首先找到变量名func，外面有一对圆括号，而且左边是一个<em>号，这说明func是一个指针；然后跳出这个圆括号，先看右边，又遇到圆括号，这说明 (</em>func)是一个函数，<br>    所以func是一个指向这类函数的指针，即函数指针，这类函数具有int<em>类型的形参，返回值类型是int。<br>    2)int (</em>func[5])(int <em>);<br>        func 右边是一个[]运算符，说明func是具有5个元素的数组；func的左边有一个</em>，说明func的元素是指针（注意这里的<em>不是修饰func，而是修饰 func[5]的，原因是<br>    []运算符优先级比</em>高，func先跟[]结合）。跳出这个括号，看右边，又遇到圆括号，说明func数组的元素是函数类型的指 针，它指向的函数具有int*类型的形参，返回<br>    值类型为int。</p>
+<p>##3.理解复杂声明可用的“右左法则”：<br>    从变量名看起，先往右，再往左，碰到一个圆括号就调转阅读的方向；括号内分析完就跳出括号，还是按先右后左的顺序，如此循环，直到整个声明分析完。举例：<br>    1)int (<em>func)(int </em>p);<br>        首先找到变量名func，外面有一对圆括号，而且左边是一个<em>号，这说明func是一个指针；然后跳出这个圆括号，先看右边，又遇到圆括号，这说明 (</em>func)是一个函数，<br>    所以func是一个指向这类函数的指针，即函数指针，这类函数具有int<em>类型的形参，返回值类型是int。<br>    2)int (</em>func[5])(int <em>);<br>        func 右边是一个[]运算符，说明func是具有5个元素的数组；func的左边有一个</em>，说明func的元素是指针（注意这里的<em>不是修饰func，而是修饰 func[5]的，原因是<br>    []运算符优先级比</em>高，func先跟[]结合）。跳出这个括号，看右边，又遇到圆括号，说明func数组的元素是函数类型的指 针，它指向的函数具有int*类型的形参，返回<br>    值类型为int类型。</p>
 <p>##4.指针作为参数传递<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int a=10;</span><br><span class="line">int * p = &amp;a;</span><br><span class="line">void func1(int num)	   </span><br><span class="line">void func2(int * num)</span><br><span class="line"></span><br><span class="line">//传递变量时,下面四种方式都是合法的：</span><br><span class="line">func1(a);</span><br><span class="line">func1(*p);</span><br><span class="line">func2(&amp;a);</span><br><span class="line">func2(p);</span><br></pre></td></tr></table></figure></p>
 <p>##5.数组的两种表示<br>    在定义一个长度为MAXSIZE的数组时，可以是 int a[MAXSIZE]; 或 int <em> b;b = (int </em>)malloc(sizeof(int)<em>MAXSIZE);<br>    所以说a虽然表示一个数组，但其本质是一个指向一个长度为MAXSIZE的数组首地址的 ☆指针☆ ，记住是指针<br>    这也就有了，在传递数组为形参时，对应函数可以写: void func(int </em> list) 或  void func(int a[])。</p>
 <p>##6.指针的释放<br>    在使用完指针后，若之后不再需要则需手动释放，现将该指针值为NULL，在free掉，因为系统不会自动回收。<br>    误区：可能会认为将指针释放后当前指针所指向的数据也会被释放，但其实不会，指针变量是一个地址，它存储的空间对应的内存位置才是真的数据项，你只是释放掉了一个能寻址到<br>    这个空间的方式，并不会对这个空间有任何影响，前提是你还有其他手段能寻址到这个空间，否则这个空间就会丢失。</p>
@@ -349,6 +345,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/03/Linear-Regression/" rel="prev" title="Linear Regression">
+                Linear Regression <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -416,7 +416,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">Artikel</span>
                 </a>
               </div>
@@ -476,6 +476,16 @@
 
 
   <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <span id="busuanzi_container_site_pv">总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+    <span class="post-meta-divider">|</span>
+    <span id="busuanzi_container_site_uv">总访客<span id="busuanzi_value_site_uv"></span>人</span>
+    <span class="post-meta-divider">|</span>
+
 
 
 
